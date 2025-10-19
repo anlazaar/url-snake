@@ -1,14 +1,14 @@
-'use strict';
+"use strict";
 
 var GRID_WIDTH = 40;
 var SNAKE_CELL = 1;
 var FOOD_CELL = 2;
-var UP = {x: 0, y: -1};
-var DOWN = {x: 0, y: 1};
-var LEFT = {x: -1, y: 0};
-var RIGHT = {x: 1, y: 0};
+var UP = { x: 0, y: -1 };
+var DOWN = { x: 0, y: 1 };
+var LEFT = { x: -1, y: 0 };
+var RIGHT = { x: 1, y: 0 };
 var INITIAL_SNAKE_LENGTH = 4;
-var BRAILLE_SPACE = '\u2800';
+var BRAILLE_SPACE = "\u7834";
 
 var grid;
 var snake;
@@ -42,30 +42,39 @@ function main() {
 function detectBrowserUrlWhitespaceEscaping() {
   // Write two Braille whitespace characters to the hash because Firefox doesn't
   // escape single WS chars between words.
-  history.replaceState(null, null, '#' + BRAILLE_SPACE + BRAILLE_SPACE)
+  history.replaceState(null, null, "#" + BRAILLE_SPACE + BRAILLE_SPACE);
   if (location.hash.indexOf(BRAILLE_SPACE) == -1) {
-    console.warn('Browser is escaping whitespace characters on URL')
+    console.warn("Browser is escaping whitespace characters on URL");
     var replacementData = pickWhitespaceReplacementChar();
     whitespaceReplacementChar = replacementData[0];
-    $('#url-escaping-note').classList.remove('invisible');
-    $('#replacement-char-description').textContent = replacementData[1];
+    $("#url-escaping-note").classList.remove("invisible");
+    $("#replacement-char-description").textContent = replacementData[1];
   }
 }
 
 function cleanUrl() {
   // In order to have the most space for the game, shown on the URL hash,
   // remove all query string parameters and trailing / from the URL.
-  history.replaceState(null, null, location.pathname.replace(/\b\/$/, ''));
+  history.replaceState(null, null, location.pathname.replace(/\b\/$/, ""));
 }
 
 function setupEventHandlers() {
   var directionsByKey = {
     // Arrows
-    37: LEFT, 38: UP, 39: RIGHT, 40: DOWN,
+    37: LEFT,
+    38: UP,
+    39: RIGHT,
+    40: DOWN,
     // WASD
-    87: UP, 65: LEFT, 83: DOWN, 68: RIGHT,
+    87: UP,
+    65: LEFT,
+    83: DOWN,
+    68: RIGHT,
     // hjkl
-    75: UP, 72: LEFT, 74: DOWN, 76: RIGHT
+    75: UP,
+    72: LEFT,
+    74: DOWN,
+    76: RIGHT,
   };
 
   document.onkeydown = function (event) {
@@ -78,14 +87,22 @@ function setupEventHandlers() {
   // Use touchstart instead of mousedown because these arrows are only shown on
   // touch devices, and also because there is a delay between touchstart and
   // mousedown on those devices, and the game should respond ASAP.
-  $('#up').ontouchstart = function () { changeDirection(UP) };
-  $('#down').ontouchstart = function () { changeDirection(DOWN) };
-  $('#left').ontouchstart = function () { changeDirection(LEFT) };
-  $('#right').ontouchstart = function () { changeDirection(RIGHT) };
+  $("#up").ontouchstart = function () {
+    changeDirection(UP);
+  };
+  $("#down").ontouchstart = function () {
+    changeDirection(DOWN);
+  };
+  $("#left").ontouchstart = function () {
+    changeDirection(LEFT);
+  };
+  $("#right").ontouchstart = function () {
+    changeDirection(RIGHT);
+  };
 
   window.onblur = function pauseGame() {
     gamePaused = true;
-    window.history.replaceState(null, null, location.hash + '[paused]');
+    window.history.replaceState(null, null, location.hash + "[paused]");
   };
 
   window.onfocus = function unpauseGame() {
@@ -93,27 +110,27 @@ function setupEventHandlers() {
     drawWorld();
   };
 
-  $('#reveal-url').onclick = function (e) {
+  $("#reveal-url").onclick = function (e) {
     e.preventDefault();
     setUrlRevealed(!urlRevealed);
   };
 
-  document.querySelectorAll('.expandable').forEach(function (expandable) {
-    var expand = expandable.querySelector('.expand-btn');
-    var collapse = expandable.querySelector('.collapse-btn');
-    var content = expandable.querySelector('.expandable-content');
+  document.querySelectorAll(".expandable").forEach(function (expandable) {
+    var expand = expandable.querySelector(".expand-btn");
+    var collapse = expandable.querySelector(".collapse-btn");
+    var content = expandable.querySelector(".expandable-content");
     expand.onclick = collapse.onclick = function () {
-      expand.classList.remove('hidden');
-      content.classList.remove('hidden');
-      expandable.classList.toggle('expanded');
+      expand.classList.remove("hidden");
+      content.classList.remove("hidden");
+      expandable.classList.toggle("expanded");
     };
     // Hide the expand button or the content when the animation ends so those
     // elements are not interactive anymore.
     // Surely there's a way to do this with CSS animations more directly.
     expandable.ontransitionend = function () {
-      var expanded = expandable.classList.contains('expanded');
-      expand.classList.toggle('hidden', expanded);
-      content.classList.toggle('hidden', !expanded);
+      var expanded = expandable.classList.contains("expanded");
+      expand.classList.toggle("hidden", expanded);
+      content.classList.toggle("hidden", !expanded);
     };
   });
 }
@@ -127,9 +144,9 @@ function initUrlRevealed() {
 // cases, the player can choose to "reveal" the URL within the page body.
 function setUrlRevealed(value) {
   urlRevealed = value;
-  $('#url-container').classList.toggle('invisible', !urlRevealed);
+  $("#url-container").classList.toggle("invisible", !urlRevealed);
   if (urlRevealed) {
-    localStorage.urlRevealed = 'y';
+    localStorage.urlRevealed = "y";
   } else {
     delete localStorage.urlRevealed;
   }
@@ -140,7 +157,7 @@ function startGame() {
   snake = [];
   for (var x = 0; x < INITIAL_SNAKE_LENGTH; x++) {
     var y = 2;
-    snake.unshift({x: x, y: y});
+    snake.unshift({ x: x, y: y });
     setCellAt(x, y, SNAKE_CELL);
   }
   currentDirection = RIGHT;
@@ -160,8 +177,8 @@ function updateWorld() {
   var newY = head.y + currentDirection.y;
 
   var outOfBounds = newX < 0 || newX >= GRID_WIDTH || newY < 0 || newY >= 4;
-  var collidesWithSelf = cellAt(newX, newY) === SNAKE_CELL
-    && !(newX === tail.x && newY === tail.y);
+  var collidesWithSelf =
+    cellAt(newX, newY) === SNAKE_CELL && !(newX === tail.x && newY === tail.y);
 
   if (outOfBounds || collidesWithSelf) {
     endGame();
@@ -177,7 +194,7 @@ function updateWorld() {
 
   // Advance head after tail so it can occupy the same cell on next tick.
   setCellAt(newX, newY, SNAKE_CELL);
-  snake.unshift({x: newX, y: newY});
+  snake.unshift({ x: newX, y: newY });
 
   if (eatsFood) {
     dropFood();
@@ -196,12 +213,12 @@ function endGame() {
 }
 
 function drawWorld() {
-  var hash = '#|' + gridString() + '|[score:' + currentScore() + ']';
+  var hash = "#|" + gridString() + "|[score:" + currentScore() + "]";
 
   if (urlRevealed) {
     // Use the original game representation on the on-DOM view, as there are no
     // escaping issues there.
-    $('#url').textContent = location.href.replace(/#.*$/, '') + hash;
+    $("#url").textContent = location.href.replace(/#.*$/, "") + hash;
   }
 
   // Modern browsers escape whitespace characters on the address bar URL for
@@ -220,28 +237,29 @@ function drawWorld() {
   // back button.
   if (decodeURIComponent(location.hash) !== hash) {
     console.warn(
-      'history.replaceState() throttling detected. Using location.hash fallback'
+      "history.replaceState() throttling detected. Using location.hash fallback"
     );
     location.hash = hash;
   }
 }
 
 function gridString() {
-  var str = '';
+  var str = "";
   for (var x = 0; x < GRID_WIDTH; x += 2) {
     // Unicode Braille patterns are 256 code points going from 0x2800 to 0x28FF.
     // They follow a binary pattern where the bits are, from least significant
     // to most: ⠁⠂⠄⠈⠐⠠⡀⢀
     // So, for example, 147 (10010011) corresponds to ⢓
-    var n = 0
-      | bitAt(x, 0) << 0
-      | bitAt(x, 1) << 1
-      | bitAt(x, 2) << 2
-      | bitAt(x + 1, 0) << 3
-      | bitAt(x + 1, 1) << 4
-      | bitAt(x + 1, 2) << 5
-      | bitAt(x, 3) << 6
-      | bitAt(x + 1, 3) << 7;
+    var n =
+      0 |
+      (bitAt(x, 0) << 0) |
+      (bitAt(x, 1) << 1) |
+      (bitAt(x, 2) << 2) |
+      (bitAt(x + 1, 0) << 3) |
+      (bitAt(x + 1, 1) << 4) |
+      (bitAt(x + 1, 2) << 5) |
+      (bitAt(x, 3) << 6) |
+      (bitAt(x + 1, 3) << 7);
     str += String.fromCharCode(0x2800 + n);
   }
   return str;
@@ -251,7 +269,7 @@ function tickTime() {
   // Game speed increases as snake grows.
   var start = 125;
   var end = 75;
-  return start + snake.length * (end - start) / grid.length;
+  return start + (snake.length * (end - start)) / grid.length;
 }
 
 function currentScore() {
@@ -259,7 +277,7 @@ function currentScore() {
 }
 
 function cellAt(x, y) {
-  return grid[x % GRID_WIDTH + y * GRID_WIDTH];
+  return grid[(x % GRID_WIDTH) + y * GRID_WIDTH];
 }
 
 function bitAt(x, y) {
@@ -267,7 +285,7 @@ function bitAt(x, y) {
 }
 
 function setCellAt(x, y, cellType) {
-  grid[x % GRID_WIDTH + y * GRID_WIDTH] = cellType;
+  grid[(x % GRID_WIDTH) + y * GRID_WIDTH] = cellType;
 }
 
 function dropFood() {
@@ -304,14 +322,14 @@ function drawMaxScore() {
     return;
   }
 
-  var maxScorePoints = maxScore == 1 ? '1 point' : maxScore + ' points'
+  var maxScorePoints = maxScore == 1 ? "1 point" : maxScore + " points";
   var maxScoreGrid = localStorage.maxScoreGrid;
 
-  $('#max-score-points').textContent = maxScorePoints;
-  $('#max-score-grid').textContent = maxScoreGrid;
-  $('#max-score-container').classList.remove('hidden');
+  $("#max-score-points").textContent = maxScorePoints;
+  $("#max-score-grid").textContent = maxScoreGrid;
+  $("#max-score-container").classList.remove("hidden");
 
-  $('#share').onclick = function (e) {
+  $("#share").onclick = function (e) {
     e.preventDefault();
     shareScore(maxScorePoints, maxScoreGrid);
   };
@@ -320,20 +338,29 @@ function drawMaxScore() {
 // Expands the high score details if collapsed. Only done when beating the
 // highest score, to grab the player's attention.
 function showMaxScore() {
-  if ($('#max-score-container.expanded')) return
-  $('#max-score-container .expand-btn').click();
+  if ($("#max-score-container.expanded")) return;
+  $("#max-score-container .expand-btn").click();
 }
 
 function shareScore(scorePoints, grid) {
-  var message = '|' + grid + '| Got ' + scorePoints +
-    ' playing this stupid snake game on the browser URL!';
-  var url = $('link[rel=canonical]').href;
+  var message =
+    "|" +
+    grid +
+    "| Got " +
+    scorePoints +
+    " playing this stupid snake game on the browser URL!";
+  var url = $("link[rel=canonical]").href;
   if (navigator.share) {
-    navigator.share({text: message, url: url});
+    navigator.share({ text: message, url: url });
   } else {
-    navigator.clipboard.writeText(message + '\n' + url)
-      .then(function () { showShareNote('copied to clipboard') })
-      .catch(function () { showShareNote('clipboard write failed') })
+    navigator.clipboard
+      .writeText(message + "\n" + url)
+      .then(function () {
+        showShareNote("copied to clipboard");
+      })
+      .catch(function () {
+        showShareNote("clipboard write failed");
+      });
   }
 }
 
@@ -341,7 +368,9 @@ function showShareNote(message) {
   var note = $("#share-note");
   note.textContent = message;
   note.classList.remove("invisible");
-  setTimeout(function () { note.classList.add("invisible") }, 1000);
+  setTimeout(function () {
+    note.classList.add("invisible");
+  }, 1000);
 }
 
 // Super hacky function to pick a suitable character to replace the empty
@@ -361,16 +390,16 @@ function pickWhitespaceReplacementChar() {
     // changed at any time, and in other browsers like Firefox this character is
     // rendered with an ugly "undefined" glyph, so it'll get filtered out by the
     // width or the "blankness" check in either of those cases.
-    ['૟', 'strange symbols'],
+    ["૟", "strange symbols"],
     // U+27CB Mathematical Rising Diagonal, not a great replacement for
     // whitespace, but is close to the correct size and blank enough.
-    ['⟋', 'some weird slashes']
+    ["⟋", "some weird slashes"],
   ];
 
   var N = 5;
-  var canvas = document.createElement('canvas');
-  var ctx = canvas.getContext('2d');
-  ctx.font = '30px system-ui';
+  var canvas = document.createElement("canvas");
+  var ctx = canvas.getContext("2d");
+  ctx.font = "30px system-ui";
   var targetWidth = ctx.measureText(BRAILLE_SPACE.repeat(N)).width;
 
   for (var i = 0; i < candidates.length; i++) {
@@ -398,7 +427,7 @@ function pickWhitespaceReplacementChar() {
   }
 
   // Fallback to a safe U+2591 Light Shade.
-  return ['░', 'some kind of "fog"'];
+  return ["░", 'some kind of "fog"'];
 }
 
 var $ = document.querySelector.bind(document);
